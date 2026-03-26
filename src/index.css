@@ -1,0 +1,161 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Fonts ── */
+:root {
+  --font-heading: 'Secular One', sans-serif;
+  --font-body: 'Rubik', sans-serif;
+  --color-teal: #4a90c4;
+  --color-navy: #1a1a2e;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  height: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+body {
+  height: 100%;
+  font-family: var(--font-body);
+  direction: rtl;
+  overflow: hidden;
+  overscroll-behavior: none;      /* prevent iOS/Android rubber-band blue bar */
+  background: #1a1a2e;
+}
+
+#root {
+  height: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  background: #1a1a2e;
+  touch-action: none;             /* block all touch-scroll at root; SummaryScreen overrides with pan-y */
+}
+
+/* Override Tailwind h-screen / min-h-screen to use dvh so mobile URL bar doesn't cause overflow */
+.h-screen    { height: 100vh; height: 100dvh; }
+.min-h-screen { min-height: 100vh; min-height: 100dvh; }
+
+h1, h2, h3, .heading {
+  font-family: var(--font-heading);
+}
+
+/* ── Screen fade: fast fade to reduce background flash ── */
+@keyframes screenFadeIn {
+  from { opacity: 0.85; }
+  to   { opacity: 1; }
+}
+.screen-fade {
+  animation: screenFadeIn 0.2s ease;
+}
+
+/* ── Speech bubble slide-in from top ── */
+@keyframes bubbleSlide {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.bubble-enter {
+  animation: bubbleSlide 0.4s ease-out both;
+}
+
+/* ── Tool stagger entry (slide up + fade) ── */
+@keyframes toolEnter {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.tool-enter-a {
+  animation: toolEnter 0.35s ease-out 0ms both;
+}
+.tool-enter-b {
+  animation: toolEnter 0.35s ease-out 120ms both;
+}
+
+/* ── Idle pulse on speech bubble ── */
+@keyframes idlePulse {
+  0%, 100% { box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+  50%       { box-shadow: 0 4px 30px rgba(74,144,196,0.6), 0 4px 20px rgba(0,0,0,0.3); }
+}
+.idle-pulse {
+  animation: idlePulse 1.5s ease-in-out infinite;
+}
+
+/* ── Avatar scale-up on select ── */
+@keyframes avatarSelect {
+  0%   { transform: scale(1); }
+  60%  { transform: scale(1.12); }
+  100% { transform: scale(1.08); }
+}
+.avatar-selected {
+  animation: avatarSelect 0.35s ease forwards;
+}
+
+/* ── CTA button bounce ── */
+@keyframes btnBounce {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(0.93); }
+  70%  { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+.btn-bounce:active {
+  animation: btnBounce 0.25s ease;
+}
+
+/* ── Background fade ── */
+@keyframes bgFade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.bg-fade {
+  animation: bgFade 0.5s ease;
+}
+
+/* ── Progress canvas ── */
+@keyframes progressReveal {
+  from { opacity: 0; }
+  to   { opacity: 0.85; }
+}
+
+/* ── Accordion ── */
+.accordion-content {
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+}
+
+/* ── Spinner ── */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #c0c0c0; border-radius: 2px; }
+
+/* ── Card selection ring ── */
+.card-selected {
+  outline: 3px solid var(--color-teal);
+  outline-offset: 2px;
+}
+
+/* ── Exhibition: floating shapes ── */
+@keyframes floatShape {
+  0%   { transform: translate(0, 0) scale(1); }
+  25%  { transform: translate(12px, -18px) scale(1.04); }
+  50%  { transform: translate(-8px, 12px) scale(0.97); }
+  75%  { transform: translate(16px, 6px) scale(1.02); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+/* ── Exhibition: title fade-in ── */
+@keyframes fadeInExhibition {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
