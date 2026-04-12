@@ -61,6 +61,7 @@ function buildGamePayload(state: GameState) {
       utmCampaign: state.utmData.utm_campaign ?? undefined,
       referrer: state.utmData.referrer,
     } : undefined,
+    institution_id: config.clientId,
     status: 'complete' as const,
     clientContext: {
       deviceType,

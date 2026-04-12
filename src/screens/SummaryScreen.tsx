@@ -232,7 +232,7 @@ export default function SummaryScreen({ agentResponse, firstName, runId, isMuted
             fontFamily: 'var(--font-heading)',
             color: '#1a1a2e',
             direction: 'rtl',
-            textAlign: 'right',
+            textAlign: 'center',
             marginTop: isMobile ? 4 : 20,
             marginBottom: isMobile ? 5 : 16,
             fontSize: isMobile ? '1.1rem' : '1.75rem',
@@ -261,7 +261,7 @@ export default function SummaryScreen({ agentResponse, firstName, runId, isMuted
 
         {/* First batch of accordions */}
         {firstBatch.length > 0 ? (
-          <div className={gridCls}>
+          <div className={gridCls} style={{ direction: 'rtl' }}>
             {firstBatch.map((acc, i) => (
               <AccordionItem
                 key={i}
@@ -302,7 +302,7 @@ export default function SummaryScreen({ agentResponse, firstName, runId, isMuted
         {hasExtra && showExtra && (
           <>
             {extraAccordions.length > 0 ? (
-              <div className={gridCls + ' mt-3'}>
+              <div className={gridCls + ' mt-3'} style={{ direction: 'rtl' }}>
                 {extraAccordions.map((acc, i) => (
                   <AccordionItem
                     key={'extra-' + i}

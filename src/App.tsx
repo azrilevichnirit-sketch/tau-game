@@ -226,7 +226,7 @@ export default function App() {
 
     // Check if this is the last mission
     if (isLastMission) {
-      setTimeout(() => { setState(s => {      // switch at 1500ms
+      setTimeout(() => { setState(s => {      // switch at 800ms
         const counts = computeCounts(s.finalPicksByMissionId);
         const sorted = rankCodes(counts);
         const topCount = sorted[0][1];
@@ -258,13 +258,13 @@ export default function App() {
         if (tie2) return {...s,screen:"tie",currentTieId:tie2.id,tieRank:2,rank1Code,rank2Code:null,rank3Code:null};
         // fallback
         return {...s,screen:"lead",rank1Code,rank2Code:cA,rank3Code:resolveRank3(rank1Code,cA,counts)};
-      }); }, 1500); // same delay as regular missions so after-pick bg is visible
+      }); }, 800); // same delay as regular missions so after-pick bg is visible
     } else {
       setTimeout(() => setState(s => {
-        const ni = s.currentMissionIndex+1;
+        const ni = s.currentMissionIndex+1; // switch at 800ms
         const nm = MISSIONS[ni];
         return {...s,screen:"mission",currentMissionIndex:ni,timestamps:{...s.timestamps,[nm.id]:{shownAt:Date.now(),answeredAt:null}}};
-      }), 1500);
+      }), 800);
     }
   }
 
@@ -333,7 +333,7 @@ export default function App() {
             const rank3 = ss.rank1Code ? resolveRank3(ss.rank1Code, winner, counts) : winner;
             return {...ss, screen:"lead", lastBgDesktop:tieBgD, lastBgMobile:tieBgM, tieWinnerCode:winner, rank2Code:winner, rank3Code:rank3};
           }
-        }), 1500);
+        }), 800);
       }}
       onMuteToggle={mute} />;
   }
