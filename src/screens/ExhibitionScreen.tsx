@@ -25,9 +25,9 @@ export default function ExhibitionScreen({ onSelect }: Props) {
   const gap        = isMobile ? 8 : 12;
   const sidePad    = isMobile ? 24 : 32;   // total horizontal padding (both sides)
   // fixedV = logo area + title area + cards-container vertical padding + CTA + footer
-  // Mobile:  logo(88) + title(74) + cards-pad(8) + CTA(52) + footer(21) + safe-area(34) = 277 → 290
-  // Desktop: logo(118) + title(66) + cards-pad(16) + CTA(60) + footer(21) + buffer(14) = 295
-  const fixedV     = isMobile ? 290 : 295;
+  // Mobile:  logo(88) + title(86) + cards-pad(8) + CTA(52) + footer(21) + safe-area(34) = 289 → 302
+  // Desktop: logo(118) + title(78) + cards-pad(16) + CTA(60) + footer(21) + buffer(14) = 307
+  const fixedV     = isMobile ? 302 : 307;
   const maxByWidth = Math.floor((vw - sidePad - gap) / 2);
   const maxByHeight= Math.floor((vh - fixedV - gap) / 2);
   const cardSize   = Math.min(maxByWidth, maxByHeight, isMobile ? 340 : 420); // 420px cap on desktop
@@ -134,7 +134,7 @@ export default function ExhibitionScreen({ onSelect }: Props) {
           zIndex: 5,
           textAlign: 'center',
           direction: 'rtl',
-          padding: isMobile ? '0 16px 8px' : '0 20px 12px',
+          padding: isMobile ? '12px 16px 8px' : '16px 20px 12px',
           flexShrink: 0,
         }}
       >
@@ -247,7 +247,7 @@ export default function ExhibitionScreen({ onSelect }: Props) {
       </div>
 
       {/* ── CTA row — in-flow so cards shrink to make room ── */}
-      <div style={{ flexShrink: 0, zIndex: 10, padding: isMobile ? '6px 16px 4px' : '8px 16px 4px', minHeight: isMobile ? 52 : 60, display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+      <div style={{ flexShrink: 0, position: 'relative', zIndex: 10, padding: isMobile ? '6px 16px 4px' : '8px 16px 4px', minHeight: isMobile ? 52 : 60, display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
         {selected && (
           <button
             onClick={() => { if (selected) onSelect(selected); }}

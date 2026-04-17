@@ -36,7 +36,7 @@ body {
   height: 100dvh;
   overflow: hidden;
   background: #1a1a2e;
-  touch-action: none;             /* block all touch-scroll at root; SummaryScreen overrides with pan-y */
+  touch-action: manipulation;     /* removes 300ms tap delay; overflow:hidden on each screen prevents scroll */
 }
 
 /* Override Tailwind h-screen / min-h-screen to use dvh so mobile URL bar doesn't cause overflow */
