@@ -1,6 +1,7 @@
 // Screen 2.6 - Lead Form
 import { useState, useEffect } from 'react';
 import type { LeadData } from '../types';
+import { useViewport } from '../hooks/useViewport';
 
 interface Props {
   onSubmit: (data: LeadData) => void;
@@ -17,7 +18,7 @@ export default function LeadFormScreen({ onSubmit, lastBg, isMuted, onMuteToggle
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
 
-  const isMobile = window.innerWidth < 768;
+  const { isMobile } = useViewport();
   const formBgSrc = isMobile
     ? '/assets/form/bg_form_mobile.webp'
     : '/assets/form/bg_form_desktop.webp';
@@ -129,6 +130,7 @@ export default function LeadFormScreen({ onSubmit, lastBg, isMuted, onMuteToggle
           padding: isMobile ? '8px 16px' : '24px 20px',
           zIndex: 1,
           overflowY: 'auto',        // safety: scroll only if absolutely necessary
+          touchAction: 'pan-y',     // allow touch scroll inside form on iOS despite root touch-action:none
         }}
       >
         <div
@@ -207,6 +209,7 @@ export default function LeadFormScreen({ onSubmit, lastBg, isMuted, onMuteToggle
               <input
                 type="tel"
                 inputMode="numeric"
+                placeholder="0500000000"
                 value={phone}
                 onChange={e => handlePhoneChange(e.target.value)}
                 onBlur={() => { setTouched(t => ({ ...t, phone: true })); validate(); }}

@@ -1,6 +1,7 @@
 // ── Screen 2.3 — Welcome ─────────────────────────────────────────────
 import type { AvatarGender } from '../types';
 import { AVATARS } from '../data/avatars';
+import { useViewport } from '../hooks/useViewport';
 
 interface Props {
   gender: AvatarGender;
@@ -11,9 +12,7 @@ interface Props {
 
 export default function WelcomeScreen({ gender, onStart, isMuted, onMuteToggle }: Props) {
   const av = AVATARS[gender];
-  const vw = window.innerWidth;
-  const vh = window.innerHeight;
-  const isMobile = vw < 768;
+  const { vw, vh, isMobile } = useViewport();
   const bgSrc = isMobile
     ? '/assets/second_page/bg_mobile.webp'
     : '/assets/second_page/bg_desktop.webp';
@@ -81,7 +80,7 @@ export default function WelcomeScreen({ gender, onStart, isMuted, onMuteToggle }
                       color: '#1a1a2e',
                       lineHeight: 1.32,
                       marginBottom: i === 0 ? 4 : 2,
-                      fontSize: '0.7rem',
+                      fontSize: 'clamp(0.8rem, 2.2vw, 0.88rem)',
                       fontWeight: i === 0 ? 700 : 400,
                     }}
                   >
@@ -110,7 +109,7 @@ export default function WelcomeScreen({ gender, onStart, isMuted, onMuteToggle }
                 alignSelf: 'flex-start',
               }}
             >
-              יאללה, מתחילים ←
+              יוצאים לדרך ←
             </button>
           </div>
 
@@ -177,8 +176,8 @@ export default function WelcomeScreen({ gender, onStart, isMuted, onMuteToggle }
               style={{
                 background: 'rgba(255,255,255,0.97)',
                 borderRadius: 12,
-                padding: '12px 14px',
-                width: 240,
+                padding: '14px 16px',
+                width: 'clamp(240px, 28vw, 360px)',
                 flexShrink: 0,
                 boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
                 direction: 'rtl',
@@ -190,9 +189,9 @@ export default function WelcomeScreen({ gender, onStart, isMuted, onMuteToggle }
                     key={i}
                     style={{
                       color: '#1a1a2e',
-                      lineHeight: 1.35,
-                      marginBottom: i === 0 ? 4 : 2,
-                      fontSize: '0.87rem',
+                      lineHeight: 1.4,
+                      marginBottom: i === 0 ? 5 : 2,
+                      fontSize: 'clamp(0.82rem, 1.1vw, 0.97rem)',
                       fontWeight: i === 0 ? 700 : 400,
                     }}
                   >
@@ -221,7 +220,7 @@ export default function WelcomeScreen({ gender, onStart, isMuted, onMuteToggle }
                 direction: 'rtl',
               }}
             >
-              יאללה, מתחילים ←
+              יוצאים לדרך ←
             </button>
           </div>
 

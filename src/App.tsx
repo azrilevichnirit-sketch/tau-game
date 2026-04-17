@@ -9,6 +9,7 @@ import { sendToAgent, sendLeadToAgent, sendAbandonmentBeacon } from "./utils/age
 import { firePixelEvent } from "./utils/pixels";
 import { missionBg, tieBgTool } from "./utils/assets";
 import { config } from "./config";
+import IntroScreen from "./screens/IntroScreen";
 import ExhibitionScreen from "./screens/ExhibitionScreen";
 import AvatarScreen from "./screens/AvatarScreen";
 import WelcomeScreen from "./screens/WelcomeScreen";
@@ -24,7 +25,7 @@ _bgAudio.loop = true; _bgAudio.volume = 0.4;
 const _finAudio = new Audio("/assets/audio/final.mp3");
 _finAudio.loop = true; _finAudio.volume = 0.4;
 
-const INITIAL_BASE = { screen: "exhibition" as const, run_id: crypto.randomUUID(), exhibitionChoice: null, avatarGender: null, currentMissionIndex: 0, currentTieId: null, tieRank: null as (1|2|null), firstPicksByMissionId: {}, finalPicksByMissionId: {}, undoEvents: [], timestamps: {}, lastBgDesktop: null, lastBgMobile: null, tieWinnerCode: null, rank1Code: null as (import("./types").HollandCode|null), rank2Code: null as (import("./types").HollandCode|null), rank3Code: null as (import("./types").HollandCode|null), utmData: null, agentResponse: null, leadData: null };
+const INITIAL_BASE = { screen: "intro" as const, run_id: crypto.randomUUID(), exhibitionChoice: null, avatarGender: null, currentMissionIndex: 0, currentTieId: null, tieRank: null as (1|2|null), firstPicksByMissionId: {}, finalPicksByMissionId: {}, undoEvents: [], timestamps: {}, lastBgDesktop: null, lastBgMobile: null, tieWinnerCode: null, rank1Code: null as (import("./types").HollandCode|null), rank2Code: null as (import("./types").HollandCode|null), rank3Code: null as (import("./types").HollandCode|null), tieLoseCode: null as (import("./types").HollandCode|null), utmData: null, agentResponse: null, leadData: null };
 
 export default function App() {
   const [state, setState] = useState<GameState>(() => {
@@ -50,7 +51,7 @@ export default function App() {
 
   // ── Abandonment beacon: fires on page close/refresh ONLY before reaching the lead form ──
   useEffect(() => {
-    const COMPLETE_SCREENS = new Set(['lead', 'processing', 'summary']);
+    const COMPLETE_SCREENS = new Set(['processing', 'summary']);
     function onBeforeUnload() {
       const s = stateRef.current;
       if (COMPLETE_SCREENS.has(s.screen)) return; // user completed the funnel — no abandonment event
@@ -135,7 +136,7 @@ export default function App() {
         // run_id mismatch — response belongs to a different session, discard silently
         if (r.run_id !== currentState.run_id) return;
         // empty result — agent returned nothing useful, show error immediately
-        if (!r.result || !r.result.enginesText) {
+        if (!r.result || !r.result.enginesText || !r.result.programsMarkdown) {
           setAgentError('הסוכן לא החזיר ניתוח. ניתן לנסות שוב.');
           return;
         }
@@ -157,7 +158,7 @@ export default function App() {
     agentCalled.current = false;
     setAgentHint(false);
     setAgentError(null);
-    callAgent(state);
+    callAgent(stateRef.current);
   }
 
   // Spec 5.1: send to agent + switch music + fire pixels on entering lead form
@@ -213,10 +214,10 @@ export default function App() {
     });
 
     // Preload next background immediately (before timeout) to avoid flash on transition
-    const isLastMission = state.currentMissionIndex + 1 >= MISSIONS.length;
-    const isMob = window.innerWidth < 768;
+    const isLastMission = stateRef.current.currentMissionIndex + 1 >= MISSIONS.length;
+    const isMob = Math.min(window.innerWidth, window.innerHeight) < 600;
     if (!isLastMission) {
-      const nextNo = state.currentMissionIndex + 2; // 1-indexed
+      const nextNo = stateRef.current.currentMissionIndex + 2; // 1-indexed
       const preloadUrl = missionBg(nextNo, isMob ? 'mobile' : 'desktop');
       new window.Image().src = preloadUrl;
     } else {
@@ -287,13 +288,14 @@ export default function App() {
     setState(s => ({...s, leadData: data, screen: "processing"}));
   }
 
-  const s=state, mob=window.innerWidth<768;
+  const s=state, mob=Math.min(window.innerWidth,window.innerHeight)<600;
+  if(s.screen==="intro") return <IntroScreen onStart={() => setState(ss=>({...ss,screen:"exhibition"}))} />;
   if(s.screen==="exhibition") return <ExhibitionScreen onSelect={id=>{setState(ss=>({...ss,exhibitionChoice:id,screen:"avatar"}));startBg();}} />;
   if(s.screen==="avatar") return <AvatarScreen onSelect={g=>setState(ss=>({...ss,avatarGender:g,screen:"welcome"}))} isMuted={isMuted} onMuteToggle={mute} />;
   if(s.screen==="welcome"&&s.avatarGender) return <WelcomeScreen gender={s.avatarGender} onStart={()=>{ const m=MISSIONS[0]; setState(ss=>({...ss,screen:"mission",currentMissionIndex:0,timestamps:{...ss.timestamps,[m.id]:{shownAt:Date.now(),answeredAt:null}}})); }} isMuted={isMuted} onMuteToggle={mute} />;
   if(s.screen==="mission"&&s.avatarGender!==null) {
     const m=MISSIONS[s.currentMissionIndex], fp=s.finalPicksByMissionId[m.id]?.key??null;
-    return <MissionScreen mission={m} missionIndex={s.currentMissionIndex} totalMissions={MISSIONS.length} completedCount={Object.keys(s.finalPicksByMissionId).length} gender={s.avatarGender} finalPick={fp} lastBg={mob?(s.lastBgMobile??undefined):(s.lastBgDesktop??undefined)} isMuted={isMuted} canUndo={true} onPick={pick} onUndo={undo} onMuteToggle={mute} />;
+    return <MissionScreen mission={m} missionIndex={s.currentMissionIndex} totalMissions={MISSIONS.length} gender={s.avatarGender} finalPick={fp} lastBg={mob?(s.lastBgMobile??undefined):(s.lastBgDesktop??undefined)} isMuted={isMuted} canUndo={true} onPick={pick} onUndo={undo} onMuteToggle={mute} />;
   }
   if(s.screen==="tie"&&s.currentTieId&&s.avatarGender) {
     const tm=TIE_MISSIONS.find(t=>t.id===s.currentTieId);
@@ -316,7 +318,7 @@ export default function App() {
       }}
       onPick={(key: ToolKey) => {
         // Preload lead form bg immediately so it's cached when we arrive
-        const isMobTie = window.innerWidth < 768;
+        const isMobTie = Math.min(window.innerWidth, window.innerHeight) < 600;
         new window.Image().src = isMobTie ? '/assets/form/bg_form_mobile.webp' : '/assets/form/bg_form_desktop.webp';
         // Capture tie after-pick bg — passed as lastBg to LeadFormScreen for smooth crossfade
         const tieBgD = tieBgTool(tn, key, 'desktop');
@@ -327,11 +329,11 @@ export default function App() {
           const counts = computeCounts(ss.finalPicksByMissionId);
           if (ss.tieRank === 1) {
             // Rank 1 resolved: winner=Rank1, loser=Rank2 auto, Rank3 mathematical
-            return {...ss, screen:"lead", lastBgDesktop:tieBgD, lastBgMobile:tieBgM, tieWinnerCode:winner, rank1Code:winner, rank2Code:loser, rank3Code:resolveRank3(winner,loser,counts)};
+            return {...ss, screen:"lead", lastBgDesktop:tieBgD, lastBgMobile:tieBgM, tieWinnerCode:winner, rank1Code:winner, rank2Code:loser, rank3Code:resolveRank3(winner,loser,counts), tieLoseCode:loser};
           } else {
             // Rank 2 resolved: winner=Rank2, Rank3 ALWAYS mathematical — never the tie-loser
             const rank3 = ss.rank1Code ? resolveRank3(ss.rank1Code, winner, counts) : winner;
-            return {...ss, screen:"lead", lastBgDesktop:tieBgD, lastBgMobile:tieBgM, tieWinnerCode:winner, rank2Code:winner, rank3Code:rank3};
+            return {...ss, screen:"lead", lastBgDesktop:tieBgD, lastBgMobile:tieBgM, tieWinnerCode:winner, rank2Code:winner, rank3Code:rank3, tieLoseCode:loser};
           }
         }), 800);
       }}
@@ -354,7 +356,7 @@ export default function App() {
               <button onClick={retryAgent} style={{ background:'#4a90c4', color:'white', border:'none', borderRadius:12, padding:'13px 24px', fontSize:'1rem', fontFamily:'var(--font-body)', cursor:'pointer', fontWeight:700 }}>
                 נסה שוב
               </button>
-              <button onClick={() => { agentGenRef.current++; if(agentHintTimerRef.current) clearTimeout(agentHintTimerRef.current); agentHintTimerRef.current=null; if(agentTimeoutRef.current) clearTimeout(agentTimeoutRef.current); agentTimeoutRef.current=null; setState({...INITIAL_BASE, utmData:state.utmData}); setAgentHint(false); setAgentError(null); agentCalled.current=false; agentCache.current=null; }} style={{ background:'transparent', color:'#4a90c4', border:'2px solid #4a90c4', borderRadius:12, padding:'11px 24px', fontSize:'1rem', fontFamily:'var(--font-body)', cursor:'pointer' }}>
+              <button onClick={() => { agentGenRef.current++; if(agentHintTimerRef.current) clearTimeout(agentHintTimerRef.current); agentHintTimerRef.current=null; if(agentTimeoutRef.current) clearTimeout(agentTimeoutRef.current); agentTimeoutRef.current=null; setState({...INITIAL_BASE, run_id: crypto.randomUUID(), utmData:state.utmData}); setAgentHint(false); setAgentError(null); agentCalled.current=false; agentCache.current=null; }} style={{ background:'transparent', color:'#4a90c4', border:'2px solid #4a90c4', borderRadius:12, padding:'11px 24px', fontSize:'1rem', fontFamily:'var(--font-body)', cursor:'pointer' }}>
                 התחל מחדש
               </button>
             </div>
@@ -364,6 +366,6 @@ export default function App() {
     }
     return <ProcessingScreen lastBg={mob?(s.lastBgMobile??undefined):(s.lastBgDesktop??undefined)} showHint={agentHint} />;
   }
-  if(s.screen==="summary"&&s.agentResponse&&s.leadData) return <SummaryScreen agentResponse={s.agentResponse} firstName={(s.leadData.fullName??'').trim().split(' ').filter(Boolean)[0]??''} runId={s.run_id} isMuted={isMuted} onMuteToggle={mute} />;
+  if(s.screen==="summary"&&s.agentResponse) { const fn = s.leadData ? (s.leadData.fullName??'').trim().split(' ').filter(Boolean)[0]??'' : ''; return <SummaryScreen agentResponse={s.agentResponse} firstName={fn} runId={s.run_id} isMuted={isMuted} onMuteToggle={mute} />; }
   return <ExhibitionScreen onSelect={id=>{setState(ss=>({...ss,exhibitionChoice:id,screen:"avatar"}));}} />;
 }

@@ -1,6 +1,7 @@
 // ── Screen 2.1 — בחירת תערוכה ──────────────────────────────────────────────
 import { useState } from 'react';
 import { config } from '../config';
+import { useViewport } from '../hooks/useViewport';
 
 // Glow colour per exhibition id (desktop hover only)
 const GLOW: Record<string, string> = {
@@ -17,9 +18,7 @@ interface Props {
 export default function ExhibitionScreen({ onSelect }: Props) {
   const [selected, setSelected] = useState<string | null>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
-  const vw = window.innerWidth;
-  const vh = window.innerHeight;
-  const isMobile = vw < 768;
+  const { vw, vh, isMobile } = useViewport();
 
   // Card size: a square that fits both in available WIDTH and available HEIGHT
   // so that on desktop the grid never overflows below the CTA/footer.
@@ -119,16 +118,16 @@ export default function ExhibitionScreen({ onSelect }: Props) {
       </div>
 
       {/* ── Logo — top right (RTL) ── */}
-      <div style={{ position: 'relative', zIndex: 5, display: 'flex', justifyContent: 'flex-end', padding: isMobile ? '8px 8px 4px' : '12px 16px 6px', flexShrink: 0 }}>
+      <div style={{ position: 'relative', zIndex: 5, display: 'flex', justifyContent: 'flex-start', padding: isMobile ? '8px 8px 4px' : '12px 16px 6px', flexShrink: 0 }}>
         <img
           src={config.logoSrc}
           alt={config.logoAlt}
-          style={{ height: isMobile ? 76 : 100, width: 'auto', objectFit: 'contain' }}
+          style={{ height: isMobile ? 48 : 100, width: 'auto', objectFit: 'contain' }}
           onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
         />
       </div>
 
-      {/* ── Title + subtitle ── */}
+      {/* ── Title ── */}
       <div
         style={{
           position: 'relative',
@@ -143,17 +142,14 @@ export default function ExhibitionScreen({ onSelect }: Props) {
           style={{
             fontFamily: 'var(--font-heading)',
             color: '#1a1a2e',
-            marginBottom: 4,
-            fontSize: isMobile ? '1.45rem' : '1.75rem',
+            marginBottom: 0,
+            fontSize: isMobile ? '1.3rem' : '1.75rem',
             fontWeight: 700,
-            lineHeight: 1.2,
+            lineHeight: 1.25,
           }}
         >
-          כל סטודיו מתחיל בבחירה אחת
+          לכל סטודיו יש סיפור אחר, מה יהיה שלך?
         </h1>
-        <p style={{ color: '#4a6080', fontSize: isMobile ? '0.95rem' : '1rem', fontWeight: 500 }}>
-          זה המקום שלך להחליט איזו תערוכה להקים
-        </p>
       </div>
 
       {/* ── Cards grid — size is based on viewport WIDTH only, never on logo/title height ── */}
@@ -255,7 +251,7 @@ export default function ExhibitionScreen({ onSelect }: Props) {
         {selected && (
           <button
             onClick={() => { if (selected) onSelect(selected); }}
-            className="btn-bounce"
+            className="btn-bounce cta-appear"
             style={{
               background: '#4a90c4',
               color: 'white',

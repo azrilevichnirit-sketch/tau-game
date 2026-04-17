@@ -26,36 +26,40 @@ export default function ToolCard({
 }: Props) {
   const imgSize = toolSize ?? (isMobile ? 120 : 160);
   const [tooltipOpen, setTooltipOpen] = useState(false);
-  const cardRef = useRef<HTMLButtonElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
 
   // Reset tooltip when mission changes
   useEffect(() => {
     setTooltipOpen(false);
   }, [resetTooltip]);
 
-  // Close tooltip on outside click (mobile)
+  // Close tooltip on outside click/touch
   useEffect(() => {
     if (!tooltipOpen) return;
-    function handleOutside(e: MouseEvent) {
-      if (cardRef.current && !cardRef.current.contains(e.target as Node)) {
+    function handleOutside(e: MouseEvent | TouchEvent) {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
         setTooltipOpen(false);
       }
     }
     document.addEventListener('mousedown', handleOutside);
-    return () => document.removeEventListener('mousedown', handleOutside);
+    document.addEventListener('touchstart', handleOutside, { passive: true });
+    return () => {
+      document.removeEventListener('mousedown', handleOutside);
+      document.removeEventListener('touchstart', handleOutside);
+    };
   }, [tooltipOpen]);
 
-  function handleInfoClick(e: React.MouseEvent) {
+  function handleInfoClick(e: React.MouseEvent | React.TouchEvent) {
+    // Stop propagation so the wrapper doesn't trigger anything else
     e.stopPropagation();
-    if (isMobile) {
-      setTooltipOpen((prev) => !prev);
-    }
+    if ('preventDefault' in e && isMobile) e.preventDefault();
+    setTooltipOpen((prev) => !prev);
   }
 
   return (
-    <div className="relative flex flex-col items-center">
+    <div ref={wrapperRef} className="relative flex flex-col items-center">
+      {/* ── Tool selection button — clean tap target, no children that eat clicks ── */}
       <button
-        ref={cardRef}
         onClick={() => !isDisabled && onPick(toolKey)}
         disabled={isDisabled}
         className={`
@@ -69,7 +73,6 @@ export default function ToolCard({
         aria-label={`בחר כלי: ${tooltipText}`}
         aria-pressed={isSelected}
         style={{
-          // Mobile: semi-transparent bg behind each tool separately
           background: isMobile ? 'rgba(0,0,0,0.4)' : 'transparent',
           padding: isMobile ? 8 : 0,
           borderRadius: 16,
@@ -78,40 +81,45 @@ export default function ToolCard({
         <img
           src={toolSrc}
           alt={tooltipText}
+          draggable={false}
           className="rounded-xl shadow-lg"
           style={{
             width: imgSize,
             height: imgSize,
             objectFit: 'contain',
+            pointerEvents: 'none', // prevent img from intercepting touch on some browsers
           }}
           onError={(e) => { (e.target as HTMLImageElement).style.opacity = '0.3'; }}
         />
-
-        {/* Finding 19 — was nested <button> inside <button> (invalid HTML).
-             Replaced with <span role="button"> to preserve semantics without nesting. */}
-        <span
-          role="button"
-          tabIndex={0}
-          onClick={handleInfoClick}
-          onMouseEnter={() => !isMobile && setTooltipOpen(true)}
-          onMouseLeave={() => !isMobile && setTooltipOpen(false)}
-          onTouchEnd={(e) => { e.stopPropagation(); e.preventDefault(); handleInfoClick(e as unknown as React.MouseEvent); }}
-          onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleInfoClick(e as unknown as React.MouseEvent)}
-          className="absolute top-0 left-0 rounded-full flex items-center justify-center font-bold text-white"
-          style={{
-            background: 'rgba(26,26,46,0.85)',
-            pointerEvents: 'auto',
-            cursor: 'pointer',
-            width: isMobile ? 40 : 24,
-            height: isMobile ? 40 : 24,
-            fontSize: isMobile ? 16 : 12,
-            zIndex: 10,
-          }}
-          aria-label={`מידע על ${tooltipText}`}
-        >
-          ⓘ
-        </span>
       </button>
+
+      {/* ── Info button — SIBLING of the tool button, never inside it ── */}
+      <span
+        role="button"
+        tabIndex={0}
+        onClick={handleInfoClick}
+        onTouchEnd={handleInfoClick}
+        onMouseEnter={() => !isMobile && setTooltipOpen(true)}
+        onMouseLeave={() => !isMobile && setTooltipOpen(false)}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); setTooltipOpen((p) => !p); } }}
+        className="absolute rounded-full flex items-center justify-center font-bold text-white"
+        style={{
+          background: 'rgba(26,26,46,0.85)',
+          cursor: 'pointer',
+          // Position at top-right — more discoverable in RTL layout
+          top: isMobile ? 2 : 0,
+          right: isMobile ? 2 : 0,
+          width: isMobile ? 26 : 22,
+          height: isMobile ? 26 : 22,
+          fontSize: isMobile ? 12 : 11,
+          zIndex: 20,
+          userSelect: 'none',
+          WebkitUserSelect: 'none',
+        }}
+        aria-label={`מידע על ${tooltipText}`}
+      >
+        ⓘ
+      </span>
 
       {/* Tooltip */}
       {tooltipOpen && (

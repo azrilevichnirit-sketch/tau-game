@@ -1,6 +1,7 @@
 // ── GrowApp Studio — Shared Types ───────────────────────────────────────────
 
 export type Screen =
+  | 'intro'
   | 'exhibition'
   | 'avatar'
   | 'welcome'
@@ -65,6 +66,7 @@ export interface GameState {
   rank1Code: HollandCode | null;      // determined Rank 1 Holland code
   rank2Code: HollandCode | null;      // determined Rank 2 Holland code
   rank3Code: HollandCode | null;      // determined Rank 3 Holland code (always mathematical)
+  tieLoseCode: HollandCode | null;    // code that lost the tie-breaker mission (for analytics)
   utmData: UtmData | null;
   agentResponse: AgentResponse | null;
   leadData: LeadData | null;

@@ -27,7 +27,7 @@ function buildGamePayload(state: GameState) {
   const tieWinner     = state.tieWinnerCode ?? undefined;
   const tieRank       = tieTriggerred ? (state.tieRank ?? undefined) : undefined;
   const tieLose       = tieTriggerred
-    ? (state.tieRank === 1 ? state.rank2Code : state.rank3Code) ?? undefined
+    ? (state.tieRank === 1 ? state.rank2Code : state.tieLoseCode) ?? undefined
     : undefined;
 
   return {
@@ -102,6 +102,7 @@ export async function sendLeadToAgent(leadData: LeadData, runId: string): Promis
     email: leadData.email,
     phone: leadData.phone,
     wantsUpdates: leadData.acceptUpdates,
+    institution_id: config.clientId,
   };
 
   fetch(`${config.agentEndpoint}/game/complete`, {
@@ -111,8 +112,9 @@ export async function sendLeadToAgent(leadData: LeadData, runId: string): Promis
       'x-agent-secret': config.agentSecret,
     },
     body: JSON.stringify(payload),
+    signal: AbortSignal.timeout(30000),
   }).catch((err) => {
-    console.warn('[GrowApp] sendLeadToAgent failed (non-blocking)', err);
+    console.warn('[GrowApp] sendLeadToAgent failed (non-blocking)', err?.message ?? err);
   });
 
   return { success: true };
@@ -133,7 +135,7 @@ export function sendSessionEndBeacon(payload: SessionEndPayload): void {
   const fullPayload = { ...payload, system_version: config.system_version };
   if (config.agentEndpoint) {
     navigator.sendBeacon(
-      config.agentEndpoint + '/session_end',
+      config.agentEndpoint + '/game/session_end',
       new Blob([JSON.stringify(fullPayload)], { type: 'application/json' })
     );
   } else {
@@ -157,7 +159,7 @@ export function sendAbandonmentBeacon(payload: AbandonmentPayload): void {
   const fullPayload = { ...payload, system_version: config.system_version };
   if (config.agentEndpoint) {
     navigator.sendBeacon(
-      config.agentEndpoint + '/abandoned',
+      config.agentEndpoint + '/game/abandoned',
       new Blob([JSON.stringify(fullPayload)], { type: 'application/json' })
     );
   } else {

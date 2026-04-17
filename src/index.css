@@ -13,6 +13,9 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 html {
+  /* Responsive base font — all rem units scale automatically with viewport width.
+     375px → 16px (standard iPhone), 320px → 13.6px, 768px+ → 16px (capped) */
+  font-size: clamp(13px, 4.27vw, 16px);
   height: 100%;
   height: 100dvh;
   overflow: hidden;
@@ -158,4 +161,79 @@ h1, h2, h3, .heading {
 @keyframes fadeInExhibition {
   from { opacity: 0; transform: translateY(14px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Narrative beat overlay fade-in ── */
+@keyframes beatIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.beat-in {
+  animation: beatIn 0.4s ease forwards;
+}
+
+/* ── Avatar catch: stays in bubble, scales up to receive tool ── */
+@keyframes avatarCatch {
+  0%   { transform: scale(1);    }
+  40%  { transform: scale(1.75); }   /* grows to receive tool */
+  62%  { transform: scale(2.0);  }   /* peak — tool arrives */
+  78%  { transform: scale(1.7);  }   /* caught! recoil */
+  100% { transform: scale(1);    }   /* back to normal */
+}
+.avatar-catching {
+  animation: avatarCatch 0.75s cubic-bezier(0.34, 1.2, 0.64, 1) forwards;
+  position: relative;
+  z-index: 10;
+  transform-origin: center center;
+}
+
+/* ── Dot pulse (ProcessingScreen indeterminate) ── */
+@keyframes dotPulse {
+  0%, 60%, 100% { opacity: 0.3; transform: scale(1); }
+  30%            { opacity: 1;   transform: scale(1.3); }
+}
+
+/* ── Toolbox flash on new mission ── */
+@keyframes toolboxAppear {
+  0%   { box-shadow: 0 2px 8px rgba(0,0,0,0.2), 0 0 0px rgba(255,200,80,0); }
+  35%  { box-shadow: 0 2px 8px rgba(0,0,0,0.2), 0 0 20px rgba(255,200,80,0.65); }
+  100% { box-shadow: 0 2px 8px rgba(0,0,0,0.2), 0 0 0px rgba(255,200,80,0); }
+}
+.toolbox-appear {
+  animation: toolboxAppear 0.8s ease-out 0.25s both;
+}
+
+/* ── Toolbox idle glow ── */
+@keyframes toolboxIdlePulse {
+  0%, 100% { box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+  50%       { box-shadow: 0 2px 8px rgba(0,0,0,0.2), 0 0 18px rgba(255,200,80,0.55); }
+}
+.toolbox-idle {
+  animation: toolboxIdlePulse 1.5s ease-in-out infinite;
+}
+
+/* ── CTA entrance (ExhibitionScreen / generic) ── */
+@keyframes ctaAppear {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.cta-appear {
+  animation: ctaAppear 0.28s ease-out both;
+}
+
+/* ── fadeInUp (ProcessingScreen hint) ── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Tool selection pulse ── */
+@keyframes toolPulse {
+  0%   { transform: scale(1);    filter: drop-shadow(0 0 0px  rgba(255,255,255,0)); }
+  45%  { transform: scale(1.28); filter: drop-shadow(0 0 18px rgba(255,255,255,0.95)); }
+  100% { transform: scale(1.12); filter: drop-shadow(0 0 10px rgba(255,255,255,0.6)); }
+}
+.tool-pulse {
+  animation: toolPulse 0.28s ease forwards;
+  pointer-events: none;
 }

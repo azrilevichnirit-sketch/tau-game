@@ -32,18 +32,18 @@ export const config: {
 
   // תערוכות — מותאם לפקולטות TAU
   exhibitions: [
-    { id: 'tech',    label: 'מדע, הנדסה וטכנולוגיה',   image: '/assets/gallery/tech.webp'   },
-    { id: 'arts',    label: 'אמנויות ומדעי הרוח',       image: '/assets/gallery/arts.webp'   },
-    { id: 'social',  label: 'חברה, ניהול ומשפט',        image: '/assets/gallery/social.webp' },
-    { id: 'science', label: 'מדעי החיים והבריאות',      image: '/assets/gallery/space.webp'  },
+    { id: 'tech',    label: 'טכנולוגיה והעולם של מחר',  image: '/assets/gallery/tech.webp'   },
+    { id: 'arts',    label: 'יצירה, דמיון וביטוי עצמי', image: '/assets/gallery/arts.webp'   },
+    { id: 'social',  label: 'אנשים, סיפורים ותרבות',    image: '/assets/gallery/social.webp' },
+    { id: 'science', label: 'היקום',                     image: '/assets/gallery/space.webp'  },
   ],
 
   // Supabase (יוחלף לפי לקוח)
   supabaseUrl: '',
   supabaseAnonKey: '',
 
-  // Agent endpoint — Railway production
-  agentEndpoint: 'https://growapp-agent-production.up.railway.app',
+  // Agent endpoint — local dev: http://localhost:3001 | production: Railway URL
+  agentEndpoint: import.meta.env.VITE_AGENT_ENDPOINT ?? 'https://growapp-agent-production.up.railway.app',
   agentSecret: 'GrowAppMojo',
   // Timeout לסוכן: שלב 1 (hint) תמיד 30s, שלב 2 (error screen) לפי ערך זה
   agentTimeoutSeconds: 90,

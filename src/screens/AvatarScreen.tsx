@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import type { AvatarGender } from '../types';
 import { AVATARS } from '../data/avatars';
+import { useViewport } from '../hooks/useViewport';
 
 interface Props {
   onSelect: (gender: AvatarGender) => void;
@@ -14,11 +15,10 @@ export default function AvatarScreen({ onSelect, isMuted, onMuteToggle }: Props)
 
   function handleClick(gender: AvatarGender) {
     setSelected(gender);
-    setTimeout(() => onSelect(gender), 500);
+    setTimeout(() => onSelect(gender), 380);
   }
 
-  const vw = window.innerWidth;
-  const isMobile = vw < 768;
+  const { vw, isMobile } = useViewport();
   const bgSrc = isMobile
     ? '/assets/second_page/bg_mobile.webp'
     : '/assets/second_page/bg_desktop.webp';
